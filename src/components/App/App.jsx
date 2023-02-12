@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import Searchbar from 'components/Searchbar/Searchbar';
 import { Container } from './App.styled';
@@ -8,72 +8,74 @@ import LoadMore from 'components/Button/Button';
 import { ThreeDots } from 'react-loader-spinner';
     
 
-class App extends Component {
+const  App = () => {
     
-    state = {
-        name: '',
-        items: [],
-        page: 1,
-        error: null,
-        loading: false,
-        totalHits: 0,
-    };
+    const [name, setName] = useState('');
+    const [items, setItems] = useState([]);
+    const [page, setPage] = useState(1);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [totalHits, setTotalHits] = useState(0);
 
-    async componentDidUpdate(prevProps, prevState) {
-        const { name, page } = this.state;
-        if (prevState.name !== name || prevState.page !== page) { 
-            this.setState({ loading: true });
+    useEffect(() => {
+        if (name === '') {
+            return
+        }
+        const FetchImages = async () => {
+            setLoading(true);
             try {
                 const images = await fetchImages(name, page);
-                this.setState({ totalHits: images.totalHits });
+                setTotalHits(images.totalHits);
                 if (images.totalHits === 0) {
                     throw new Error();
                 }
-                this.setState(prev => ({ items: [...prev.items, ...images.hits] }));
+                setItems(prev => [...prev, ...images.hits]);
             } catch (error) {
-                this.setState({ error });
+                setError(error);
             } finally {
-                this.setState({ loading: false });
-             }
-        }
+                setLoading(false);
+            }
+        };
 
-    }
+        FetchImages();
+    }, [name, page]);
 
-    onChangePage = () => { 
-        this.setState(prevPage => ({ page: prevPage.page + 1 }));
+
+   const onChangePage = () => { 
+        setPage(prevPage => prevPage + 1 );
     };
 
-    getNameSearch = name => { 
+    const getNameSearch = name => { 
         if (name === '') { 
             toast.error('Enter text in search');
             return;
         }
-        this.setState({ name, items: [], error: null, page: 1 });
+        setName(name);
+        setItems([]);
+        setError(null);
+        setPage(1);
     }; 
  
-
-    render() {
-        const { items, error, loading, totalHits } = this.state;
-        const isShowBtn = items.length < totalHits;
+    const isShowBtn = items.length < totalHits;
 
         return (
             <Container>
-                <Searchbar onSubmit={this.getNameSearch} />
+                <Searchbar onSubmit={getNameSearch} />
                 <ImageGallery items={items} />
                 {loading && (
                     <ThreeDots
-                        visible={true}
+                visible={true}
                 height="80"
                 width="80"
                 radius="9"
                 color="#3f51b5"
                 ariaLabel="three-dots-loading"
-                wrapperStyle={{}}
+                wrapperStyle={{ display: 'block', margin: '0 auto'}}
                 wrapperClassName=""
                     />
                 )}
                 {error && <p>Reload the page.</p>}
-                {isShowBtn && <LoadMore changePage={this.onChangePage} />}
+                {isShowBtn && <LoadMore changePage={onChangePage} />}
                 <Toaster position="top-left" />
             </Container>    
         );
