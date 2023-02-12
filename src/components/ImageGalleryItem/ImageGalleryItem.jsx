@@ -1,35 +1,30 @@
-import React, { Component} from 'react';
+import { useState } from 'react';
 import {
     ImageGalleryItemCard,
     ImageGalleryItemImage,
 } from 
     './ImageGalleryItem.styled';
-import LargePhotModal from 'components/Modal';
+import LargePhotoModal from 'components/Modal';
 
 
 
-class ImageGalleryItem extends Component {
+const ImageGalleryItem = ({ items }) => {
 
-    state = {
-        largeImage: '',
-        isOpen: false,
+    const [largeImage, setlargeImage] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const onShowLargeImg = img => { 
+        setIsOpen(state => !state);
+        setlargeImage({ img });
     };
 
-    onShowLargeImg = img => { 
-        this.setState(state => ({ isOpen: !state.isOpen }));
-        this.setState({ largeImage: img });
-    };
-
-render() {
-    const { items } = this.props;
-    const { isOpen, largeImage } = this.state;
     return (
       <>
             {items.map(({ webformatURL, largeImageURL, id }) => {
                 return (
             <ImageGalleryItemCard
                 key={id}
-                onClick={() =>this.onShowLargeImg(largeImageURL)}>
+                onClick={() => onShowLargeImg(largeImageURL)}>
             <ImageGalleryItemImage
                     src={webformatURL}
                     alt=""
@@ -40,13 +35,13 @@ render() {
             );
             })}
             {isOpen && (
-                <LargePhotModal
+                <LargePhotoModal
                     largeImg={largeImage}
-                    onClose={ this.onShowLargeImg} />
+                    onClose={ onShowLargeImg} />
             )}
             </>
 );
-}
-            }
+};
+
 
 export default ImageGalleryItem;
