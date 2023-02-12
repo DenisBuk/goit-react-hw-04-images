@@ -1,40 +1,38 @@
-import { Overlay, Modal } from'./Modal.styled';
-import React, { Component } from 'react';
+import { useEffect } from 'react';
+import { Overlay, Modal } from './Modal.styled';
 import { createPortal } from 'react-dom';
 
 const modalRoot = document.querySelector('#modal-root');
- class LargePhotModal extends Component {
+ 
+const LargePhotModal = ({ largeImg, onClose }) => {
 
-    componentDidMount() { 
-        window.addEventListener('keydown', this.onCloseModal);
-    }
+    useEffect(() => {
+        const onCloseModal = e => {
+            if (e.code === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', onCloseModal);
+    
+        return () => {
+            window.removeEventListener('keydown', onCloseModal);
+        };
+    }, [onClose]);
 
-    componentWillUnmount() { 
-        window.removeEventListener('keydown', this.onCloseModal);
-    }
-
-    onCloseModal = event => { 
-        if (event.code === 'Escape') { 
-            this.props.onClose();
-        }
-    };
-
-    handleBackdropClick = event => {
+    const handleBackdropClick = event => {
         if (event.target === event.currentTarget) {
-            this.props.onClose();
+            onClose();
         }
     };
 
-    render() { 
-        return createPortal (
-            <Overlay onClick={this.handleBackdropClick}>
-                <Modal>
-                    <img src={this.props.largeImg} alt="" />
-                    </Modal>
-            </Overlay>,
-            modalRoot
-        );
-    }
- }
+    return createPortal(
+        <Overlay onClick={handleBackdropClick}>
+            <Modal>
+                <img src={largeImg} alt="" />
+            </Modal>
+        </Overlay>,
+        modalRoot
+    );
+};
 
 export default LargePhotModal;
