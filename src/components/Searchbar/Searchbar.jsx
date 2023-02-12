@@ -12,7 +12,7 @@ const Searchbar = ({ onSubmit }) => {
   const [name, setName] = useState('');
 
   const onChangeInput = event => {
-    const { value } = e.currentTarget;
+    const { value } = event.currentTarget;
     setName(value);
   };
 
